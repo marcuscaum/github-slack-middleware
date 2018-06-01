@@ -5,7 +5,9 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 
-app.post('/pull-requests', (req, res) => {
+const isActionOpenOrLabeled = action => (action === "opened") || (actions === "labeled");
+
+const sendMessageToSlackChannel = () => {
   var options = {
     uri: 'https://hooks.slack.com/services/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',
     method: 'POST',
@@ -14,14 +16,22 @@ app.post('/pull-requests', (req, res) => {
     }
   };
 
-  request(options, (error, response, body) => {
-    console.log(error);
+  return request(options, (error, response, body) => {
     if (!error && response.statusCode == 200) {
-      console.log(body.id) // Print the shortened url.
+      console.log('Message sent!') // Print the shortened url.
+    } else {
+      console.log(error);
     }
   });
+}
 
+
+app.post('/pull-requests', (req, res) => {
   res.send(req.body);
+  
+  if (res.statusCode == 200) {
+    sendMessageToSlackChannel();
+  }
 });
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
