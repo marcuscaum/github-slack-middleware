@@ -11,13 +11,18 @@ const isReadyForReview = labels => Boolean(labels.filter(label => label.name ===
 const slackMessage = data => {
   if (!isActionOpenedOrLabeled(data.action) || !isReadyForReview(data.pull_request.labels)) return false;
 
+  const title = `${data.pull_request.title}#${data.pull_request.number}`;
+  const text = data.pull_request.head.repo.full_name;
+  const url = data.pull_request.html_url;
+  const assigned = data.pull_request.assignee && data.pull_request.assignee.login || "";
+
   const message = {
     "attachments": [
       {
         "pretext": "A new PR is ready to review!",
-        "title": `${data.pull_request.title}#${data.pull_request.number}`,
-        "title_link": data.pull_request.html_url,
-        "text": data.pull_request.head.repo.full_name,
+        "title": title,
+        "title_link": url,
+        "text": text,
         "fields": [
           {
             "title": "Priority",
@@ -26,7 +31,7 @@ const slackMessage = data => {
           },
           {
             "title": "Assigned to",
-            "value": data.pull_request.assignee.login,
+            "value": assigned,
             "short": true
           }
         ]
