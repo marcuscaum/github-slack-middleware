@@ -8,18 +8,30 @@ app.use(express.json());
 const isActionOpenedOrLabeled = action => (action === "opened") || (action === "labeled");
 const isReadyForReview = labels => Boolean(labels.filter(label => label.name === "help wanted").length);
 
-const slackMessage = data => {
+const slackMessage = (data, messageType) => {
   if (!isActionOpenedOrLabeled(data.action) || !isReadyForReview(data.pull_request.labels)) return false;
 
   const title = `${data.pull_request.title}#${data.pull_request.number}`;
   const text = data.pull_request.head.repo.full_name;
   const url = data.pull_request.html_url;
-  const assigned = data.pull_request.assignee && data.pull_request.assignee.login || "";
+  const assigned = data.pull_request.assignee && data.pull_request.assignee.login || "unassigned";
+  let pretext = "A new PR is ready to review!";
+  let color = "#764FA5";
+
+  switch (messageType) {
+    case "changesRequested":
+      pretext = "Changes requested!"
+      color = "#F35A00";
+      break;
+    default:
+      break;
+  }
 
   const message = {
     "attachments": [
       {
-        "pretext": "A new PR is ready to review!",
+        "color": color,
+        "pretext": pretext,
         "title": title,
         "title_link": url,
         "text": text,
