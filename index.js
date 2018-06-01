@@ -5,16 +5,46 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 
-const isActionOpenOrLabeled = action => (action === "opened") || (actions === "labeled");
-const isHelpNeeded = labels => labels.filter(label => label.name === "help wanted").length;
+const isActionOpenedOrLabeled = action => (action === "opened") || (action === "labeled");
+const isReadyForReview = labels => Boolean(labels.filter(label => label.name === "help wanted").length);
 
-const sendMessageToSlackChannel = () => {
+const slackMessage = data => {
+  console.log(isActionOpenedOrLabeled(data.action), isReadyForReview(data.pull_request.labels));
+  if (!isActionOpenedOrLabeled(data.action) || !isReadyForReview(data.pull_request.labels)) return false;
+
+  const message = {
+    "attachments": [
+      {
+        "pretext": "A new PR is ready to review!",
+        "title": `${data.pull_request.title}#${data.pull_request.number}`,
+        "title_link": data.pull_request.url,
+        "text": data.pull_request.head.full_name,
+        "fields": [
+          {
+            "title": "Priority",
+            "value": "High",
+            "short": true
+          },
+          {
+            "title": "Assigned to",
+            "value": data.pull_request.assignee,
+            "short": true
+          }
+        ]
+      }
+    ]
+  };
+
+  return message;
+}
+
+const sendMessageToSlackChannel = data => {
+  const message = slackMessage(data);
+
   var options = {
-    uri: 'https://hooks.slack.com/services/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',
+    uri: 'https://hooks.slack.com/services/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',
     method: 'POST',
-    json: {
-      "text": "test"
-    }
+    json: message,
   };
 
   return request(options, (error, response, body) => {
@@ -29,10 +59,7 @@ const sendMessageToSlackChannel = () => {
 
 app.post('/pull-requests', (req, res) => {
   res.send(req.body);
-  
-  if (res.statusCode == 200) {
-    sendMessageToSlackChannel();
-  }
+  sendMessageToSlackChannel(req.body);
 });
 
 app.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`))
