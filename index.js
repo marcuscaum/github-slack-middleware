@@ -18,7 +18,7 @@ const slackMessage = (data, messageType) => {
   let pretext = "A new PR is ready to review!";
   let color = "#764FA5";
 
-  switch (messageType) {
+  switch (messageType) { //TODO: Define message and color based on PR status
     case "changesRequested":
       pretext = "Changes requested!"
       color = "#F35A00";
@@ -38,7 +38,7 @@ const slackMessage = (data, messageType) => {
         "fields": [
           {
             "title": "Priority",
-            "value": "High",
+            "value": "High", // TODO: retrieve priority
             "short": true
           },
           {
