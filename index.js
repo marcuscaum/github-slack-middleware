@@ -9,7 +9,6 @@ const isActionOpenedOrLabeled = action => (action === "opened") || (action === "
 const isReadyForReview = labels => Boolean(labels.filter(label => label.name === "help wanted").length);
 
 const slackMessage = data => {
-  console.log(isActionOpenedOrLabeled(data.action), isReadyForReview(data.pull_request.labels));
   if (!isActionOpenedOrLabeled(data.action) || !isReadyForReview(data.pull_request.labels)) return false;
 
   const message = {
@@ -17,8 +16,8 @@ const slackMessage = data => {
       {
         "pretext": "A new PR is ready to review!",
         "title": `${data.pull_request.title}#${data.pull_request.number}`,
-        "title_link": data.pull_request.url,
-        "text": data.pull_request.head.full_name,
+        "title_link": data.pull_request.html_url,
+        "text": data.pull_request.head.repo.full_name,
         "fields": [
           {
             "title": "Priority",
@@ -27,7 +26,7 @@ const slackMessage = data => {
           },
           {
             "title": "Assigned to",
-            "value": data.pull_request.assignee,
+            "value": data.pull_request.assignee.login,
             "short": true
           }
         ]
