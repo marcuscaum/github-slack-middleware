@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 
 const isActionOpenOrLabeled = action => (action === "opened") || (actions === "labeled");
+const isHelpNeeded = labels => labels.filter(label => label.name === "help wanted").length;
 
 const sendMessageToSlackChannel = () => {
   var options = {
