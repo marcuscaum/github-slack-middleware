@@ -74,7 +74,7 @@ const sendMessageToSlackChannel = data => {
     if (!error && response.statusCode == 200) {
       console.log('Message sent!')
     } else {
-      console.log('error', error, response, body);
+      console.log('error', error, response, message);
     }
   });
 }
