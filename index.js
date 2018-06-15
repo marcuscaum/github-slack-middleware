@@ -5,46 +5,45 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 
-const isActionOpenedOrLabeled = action => (action === "opened") || (action === "labeled");
-const isReadyForReview = labels => Boolean(labels.filter(label => label.name === "help wanted").length);
+const isReadyForReview = labels => Boolean(labels.filter(label => label.name === 'help wanted').length);
 
 const slackMessage = (data, messageType) => {
-  if (!isActionOpenedOrLabeled(data.action) || !isReadyForReview(data.pull_request.labels)) return false;
+  if (action !== 'labeled' || !isReadyForReview(data.pull_request.labels)) return false;
 
   const title = `${data.pull_request.title}#${data.pull_request.number}`;
   const text = data.pull_request.head.repo.full_name;
   const url = data.pull_request.html_url;
-  const assigned = data.pull_request.assignee && data.pull_request.assignee.login || "unassigned";
-  let pretext = "A new PR is ready to review!";
-  let color = "#764FA5";
+  const assigned = data.pull_request.assignee && data.pull_request.assignee.login || 'unassigned';
+  let pretext = 'A new PR is ready to review!';
+  let color = '#764FA5';
 
-  switch (messageType) { //TODO: Define message and color based on PR status
-    case "changesRequested":
-      pretext = "Changes requested!"
-      color = "#F35A00";
+  switch (messageType) { //TODO: Define mess  age and color based on PR status
+    case 'changesRequested':
+      pretext = 'Changes requested!'
+      color = '#F35A00';
       break;
     default:
       break;
   }
 
   const message = {
-    "attachments": [
+    'attachments': [
       {
-        "color": color,
-        "pretext": pretext,
-        "title": title,
-        "title_link": url,
-        "text": text,
-        "fields": [
+        'color': color,
+        'pretext': pretext,
+        'title': title,
+        'title_link': url,
+        'text': text,
+        'fields': [
           {
-            "title": "Priority",
-            "value": "High", // TODO: retrieve priority
-            "short": true
+            'title': 'Priority',
+            'value': 'High', // TODO: retrieve priority
+            'short': true
           },
           {
-            "title": "Assigned to",
-            "value": assigned,
-            "short": true
+            'title': 'Assigned to',
+            'value': assigned,
+            'short': true
           }
         ]
       }
