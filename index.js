@@ -5,11 +5,19 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 
+const getPriority = labels => {
+  const getPriorityName = label => label && label.substring(10);
+  const priorityLabel = labels.filter(label => label.name.includes('priority'))[0];
+
+  return getPriorityName(priorityLabel) || 'Not defined';
+};
+
 const isReadyForReview = labels => Boolean(labels.filter(label => label.name === 'help wanted').length);
 
 const slackMessage = (data, messageType) => {
-  if (action !== 'labeled' || !isReadyForReview(data.pull_request.labels)) return false;
+  if (data.action !== 'labeled' || !isReadyForReview(data.pull_request.labels)) return false;
 
+  const priority = getPriority(data.pull_request.labels);
   const title = `${data.pull_request.title}#${data.pull_request.number}`;
   const text = data.pull_request.head.repo.full_name;
   const url = data.pull_request.html_url;
@@ -37,7 +45,7 @@ const slackMessage = (data, messageType) => {
         'fields': [
           {
             'title': 'Priority',
-            'value': 'High', // TODO: retrieve priority
+            'value': priority,
             'short': true
           },
           {
