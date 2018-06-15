@@ -72,9 +72,9 @@ const sendMessageToSlackChannel = data => {
 
   return request(options, (error, response, body) => {
     if (!error && response.statusCode == 200) {
-      console.log('Message sent!') // Print the shortened url.
+      console.log('Message sent!')
     } else {
-      console.log(error);
+      console.log('error', error);
     }
   });
 }
